@@ -1,0 +1,141 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Caveat";
+      src: url("assets/fonts/caveat-600.woff2") format("woff2");
+      font-weight: 600;
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #d-bg {
+      position: absolute;
+      inset: 0;
+    }
+    #d-kick {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 250px;
+      text-align: center;
+      font-size: 52px;
+      color: var(--ink);
+    }
+    #d-window {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 560px;
+      height: 540px;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(transparent 0%, #000 30%, #000 70%, transparent 100%);
+      mask-image: linear-gradient(transparent 0%, #000 30%, #000 70%, transparent 100%);
+    }
+    #d-reel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+    }
+    .d-word {
+      height: 180px;
+      line-height: 180px;
+      text-align: center;
+      font-size: 156px;
+      letter-spacing: 0.02em;
+    }
+    #d-box {
+      position: absolute;
+      left: 150px;
+      width: 780px;
+      top: 742px;
+      height: 176px;
+      border: 10px solid var(--vox-yellow);
+    }
+    #d-solid {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 742px;
+      height: 176px;
+      line-height: 176px;
+      text-align: center;
+      font-size: 156px;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+    }
+    #d-arrow {
+      position: absolute;
+      left: 820px;
+      top: 925px;
+      width: 140px;
+      height: 220px;
+      overflow: visible;
+    }
+    #d-note {
+      position: absolute;
+      left: 300px;
+      top: 1150px;
+      font-family: "Caveat", cursive;
+      font-weight: 600;
+      font-size: 64px;
+      color: var(--ink);
+      transform: rotate(-4deg);
+      white-space: nowrap;
+    }
+  </style>
+  <div id="root" data-composition-id="drum" data-width="1080" data-height="1920">
+    <div id="d-bg" class="g-paper"></div>
+    <div id="d-kick" class="k-caps">which one looks premium?</div>
+    <div id="d-window">
+      <div id="d-reel">
+        <div class="d-word k-serif halftone">PINK</div>
+        <div class="d-word k-serif halftone">RED</div>
+        <div class="d-word k-serif halftone">BLUE</div>
+        <div class="d-word k-serif halftone">GREEN</div>
+        <div class="d-word k-serif halftone">YELLOW</div>
+        <div class="d-word k-serif halftone">BLACK</div>
+        <div class="d-word k-serif halftone">WHITE</div>
+      </div>
+    </div>
+    <div id="d-box"></div>
+    <div id="d-solid" class="k-serif">YELLOW</div>
+    <svg id="d-arrow" viewBox="0 0 140 220">
+      <path id="d-arrow-path" d="M30 210 C 80 170, 110 100, 96 18 M96 18 L 72 52 M96 18 L 118 54"
+        fill="none" stroke="#262626" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <div id="d-note">(royalty, apparently)</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // the reel row i sits in the box when reel y = boxCentre - windowTop - (i + 0.5) * 180
+    const yFor = (i) => 742 + 88 - 560 - (i + 0.5) * 180;
+
+    tl.fromTo("#d-kick", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.25);
+    tl.fromTo("#d-box", { opacity: 0, scale: 1.15 }, { opacity: 1, scale: 1, duration: 0.14, ease: "back.out(2)" }, 0.45);
+
+    // slot machine: RED, BLUE, GREEN... lands on YELLOW
+    tl.fromTo("#d-reel", { y: yFor(1) }, { y: yFor(1), duration: 0.01 }, 0);
+    const stops = [[2, 0.75], [3, 1.0], [4, 1.28]];
+    let prev = 1;
+    stops.forEach(([i, t]) => {
+      tl.fromTo("#d-reel", { y: yFor(prev) }, { y: yFor(i), duration: 0.22, ease: "power3.out", immediateRender: false }, t);
+      prev = i;
+    });
+
+    // the chosen word inks in solid
+    tl.fromTo("#d-solid", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 1.52);
+    tl.fromTo("#d-box", { scale: 1 }, { scale: 1.06, duration: 0.07, yoyo: true, repeat: 1, ease: "power2.out", immediateRender: false }, 1.52);
+
+    // hand-drawn arrow and note
+    const p = document.querySelector("#d-arrow-path");
+    const len = p.getTotalLength();
+    tl.fromTo(p, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 },
+      { strokeDashoffset: 0, opacity: 1, duration: 0.36, ease: "power2.out" }, 1.9);
+    tl.fromTo("#d-note", { clipPath: "inset(0 100% 0 0)" },
+      { clipPath: "inset(0 0% 0 0)", duration: 0.55, ease: "power1.inOut" }, 2.15);
+
+    window.__timelines["drum"] = tl;
+  </script>
+</template>

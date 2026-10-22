@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* ---- vox-kit: brand tokens shared by every scene ---- */
+      :root {
+        --paper: #f5f2eb;
+        --grid-paper: #e8e6e0;
+        --grid-line: #cfccc3;
+        --night: #141414;
+        --night-line: #2a2a2a;
+        --ink: #262626;
+        --chalk: #f2f2f2;
+        --vox-yellow: #ffe81f;
+        --pill-red: #d3242b;
+        --cyan: #33c6f2;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--paper);
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+      }
+      /* type roles */
+      .k-caps {
+        font-family: "Montserrat", sans-serif;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .k-hero {
+        font-family: "Archivo Black", sans-serif;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+      }
+      .k-serif-i {
+        font-family: "Playfair Display", serif;
+        font-weight: 900;
+        font-style: italic;
+      }
+      .k-serif {
+        font-family: "Playfair Display", serif;
+        font-weight: 900;
+      }
+      /* grounds */
+      .g-paper {
+        background: var(--paper);
+      }
+      .g-grid {
+        background-color: var(--grid-paper);
+        background-image:
+          linear-gradient(var(--grid-line) 1.5px, transparent 1.5px),
+          linear-gradient(90deg, var(--grid-line) 1.5px, transparent 1.5px);
+        background-size: 40px 40px;
+        background-position: -1px -1px;
+      }
+      .g-night {
+        background-color: var(--night);
+        background-image:
+          linear-gradient(var(--night-line) 3px, transparent 3px),
+          linear-gradient(90deg, var(--night-line) 3px, transparent 3px);
+        background-size: 108px 108px;
+        background-position: -2px -2px;
+      }
+      /* yellow torn-edge sticker tag */
+      .sticker {
+        display: inline-block;
+        background: var(--vox-yellow);
+        color: var(--ink);
+        padding: 6px 34px 14px;
+        clip-path: polygon(1% 5%, 13% 0%, 31% 3%, 52% 0, 74% 2%, 99% 0, 100% 31%, 98% 63%, 100% 97%, 81% 100%, 56% 96%, 31% 100%, 8% 97%, 0 100%, 2% 66%, 0 34%);
+      }
+      /* red say-it-out-loud caption pill */
+      .pill {
+        display: inline-block;
+        background: var(--pill-red);
+        color: #fff;
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 44px;
+        line-height: 1;
+        padding: 12px 28px 14px;
+        border-radius: 999px;
+        white-space: nowrap;
+        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
+      }
+      /* halftone + outline serif (inactive words) */
+      .halftone {
+        color: transparent;
+        background-image: radial-gradient(circle, #6e6e6e 1.7px, transparent 2.1px);
+        background-size: 7px 7px;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-stroke: 2.5px #5d5d5d;
+      }
+      /* the real pencil, masked out of its photo */
+      .pencil {
+        background: url("assets/img/pencil-band.jpg") center / 100% 100% no-repeat;
+        aspect-ratio: 3480 / 280;
+        clip-path: polygon(0.6% 60%, 10.7% 37%, 92.3% 15.7%, 93.2% 10%, 99.4% 8.6%, 99.6% 54.3%, 93.2% 68%, 92.3% 68.6%, 10.3% 88.6%);
+      }
+      /* small red play badge that pops onto stickers */
+      .play-badge {
+        width: 96px;
+        height: 68px;
+        border-radius: 18px;
+        background: var(--pill-red);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 0 rgba(0, 0, 0, 0.18);
+      }
+      .play-badge::after {
+        content: "";
+        border-left: 30px solid #fff;
+        border-top: 18px solid transparent;
+        border-bottom: 18px solid transparent;
+        margin-left: 6px;
+      }
+      #grain {
+        position: absolute;
+        inset: 0;
+        z-index: 50;
+        pointer-events: none;
+        background-image: url("assets/img/grain.png");
+        background-size: 512px 512px;
+        mix-blend-mode: soft-light;
+        opacity: 0.32;
+      }
+    </style>
+    <script>
+      // vox-kit helpers, shared by every scene's timeline
+      window.VOX = {
+        W: 1080,
+        H: 1920,
+        // stop-motion feel: quantise an ease to 15 steps a second ("on twos" at 30 fps)
+        twos(base, dur) {
+          const e = gsap.parseEase(base || "power2.out");
+          const n = Math.max(1, Math.round(dur * 15));
+          return (p) => e(Math.round(p * n) / n);
+        },
+        // page peel from the top-right corner. content = element that is clipped away,
+        // flap = full-frame element showing the back of the page.
+        peel(tl, content, flap, at, dur) {
+          const W = 1080,
+            H = 1920;
+          const rect = [
+            [0, 0],
+            [W, 0],
+            [W, H],
+            [0, H],
+          ];
+          // half-plane clip: keep points where side(p) >= 0
+          const clip = (poly, side) => {
+            const out = [];
+            for (let i = 0; i < poly.length; i++) {
+              const a = poly[i],
+                b = poly[(i + 1) % poly.length];
+              const sa = side(a),
+                sb = side(b);
+              if (sa >= 0) out.push(a);
+              if (sa >= 0 !== sb >= 0) {
+                const t = sa / (sa - sb);
+                out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+              }
+            }
+            return out;
+          };
+          const css = (poly) =>
+            poly.length < 3
+              ? "polygon(0 0,0 0,0 0)"
+              : "polygon(" + poly.map((p) => p[0].toFixed(1) + "px " + p[1].toFixed(1) + "px").join(",") + ")";
+          const c = document.querySelector(content),
+            f = document.querySelector(flap);
+          const apply = (k) => {
+            // fold line: y = x * 0.62 + k  (a slightly steep diagonal, like a real corner lift)
+            const m = 0.62;
+            const keep = clip(rect, (p) => p[1] - m * p[0] - k);
+            const gone = clip(rect, (p) => -(p[1] - m * p[0] - k));
+            // reflect the removed part across the fold line onto the page
+            const d = 1 + m * m;
+            const refl = gone.map(([x, y]) => {
+              const t = (y - m * x - k) / d;
+              return [x + 2 * m * t, y - 2 * t];
+            });
+            c.style.clipPath = css(keep);
+            f.style.clipPath = css(refl);
+          };
+          const o = { k: -m0() };
+          function m0() {
+            return 0.62 * 1080 + 10;
+          }
+          apply(o.k);
+          tl.fromTo(
+            o,
+            { k: -m0() },
+            { k: H + 40, duration: dur, ease: "power2.in", onUpdate: () => apply(o.k) },
+            at,
+          );
+        },
+      };
+    </script>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="28"
+      data-width="1080"
+      data-height="1920"
+    >
+      <div id="hook" data-composition-id="hook" data-composition-src="compositions/hook.html"
+        data-start="0" data-duration="4.0" data-track-index="1" data-track-kind="graphics"
+        data-width="1080" data-height="1920" style="z-index: 2"></div>
+      <div id="wonder" data-composition-id="wonder" data-composition-src="compositions/wonder.html"
+        data-start="4.0" data-duration="3.6" data-track-index="2" data-track-kind="graphics"
+        data-width="1080" data-height="1920" style="z-index: 3"></div>
+      <div id="created" data-composition-id="created" data-composition-src="compositions/created.html"
+        data-start="7.0" data-duration="4.0" data-track-index="1" data-track-kind="graphics"
+        data-width="1080" data-height="1920" style="z-index: 2"></div>
+      <div id="look" data-composition-id="look" data-composition-src="compositions/look.html"
+        data-start="11.0" data-duration="4.4" data-track-index="2" data-track-kind="graphics"
+        data-width="1080" data-height="1920" style="z-index: 2"></div>
+      <div id="best" data-composition-id="best" data-composition-src="compositions/best.html"
+        data-start="15.4" data-duration="4.6" data-track-index="1" data-track-kind="graphics"
+        data-width="1080" data-height="1920" style="z-index: 3"></div>
+      <div id="want" data-composition-id="want" data-composition-src="compositions/want.html"
+        data-start="19.4" data-duration="4.0" data-track-index="2" data-track-kind="graphics"
+        data-width="1080" data-height="1920" style="z-index: 2"></div>
+      <div id="cta" data-composition-id="cta" data-composition-src="compositions/cta.html"
+        data-start="23.4" data-duration="4.6" data-track-index="1" data-track-kind="graphics"
+        data-width="1080" data-height="1920" style="z-index: 2"></div>
+
+      <div id="grain"></div>
+
+      <audio id="bgm" class="clip" src="assets/music/strolling-stripes.mp3" data-start="0" data-duration="28" data-track-index="10" data-volume="0.3" data-fade-out="1.2"></audio>
+      <audio id="sfx01" class="clip" src="assets/sfx/type.mp3" data-start="0.107" data-duration="0.3" data-track-index="11" data-volume="0.4"></audio>
+      <audio id="sfx02" class="clip" src="assets/sfx/type.mp3" data-start="0.277" data-duration="0.3" data-track-index="12" data-volume="0.35"></audio>
+      <audio id="sfx03" class="clip" src="assets/sfx/sticker.mp3" data-start="0.475" data-duration="0.57" data-track-index="11" data-volume="0.75"></audio>
+      <audio id="sfx04" class="clip" src="assets/sfx/pop.mp3" data-start="0.733" data-duration="0.5" data-track-index="12" data-volume="0.5"></audio>
+      <audio id="sfx05" class="clip" src="assets/sfx/marker.mp3" data-start="1.783" data-duration="0.5" data-media-start="0.4" data-track-index="11" data-volume="0.6"></audio>
+      <audio id="sfx06" class="clip" src="assets/sfx/pop.mp3" data-start="2.533" data-duration="0.5" data-track-index="11" data-volume="0.55"></audio>
+      <audio id="sfx07" class="clip" src="assets/sfx/click.mp3" data-start="3.980" data-duration="0.37" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx08" class="clip" src="assets/sfx/type.mp3" data-start="4.257" data-duration="0.3" data-track-index="12" data-volume="0.4"></audio>
+      <audio id="sfx09" class="clip" src="assets/sfx/click.mp3" data-start="4.630" data-duration="0.37" data-track-index="11" data-volume="0.55"></audio>
+      <audio id="sfx10" class="clip" src="assets/sfx/sticker.mp3" data-start="5.185" data-duration="0.57" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx11" class="clip" src="assets/sfx/marker.mp3" data-start="5.403" data-duration="0.5" data-media-start="0.4" data-track-index="12" data-volume="0.6"></audio>
+      <audio id="sfx12" class="clip" src="assets/sfx/pop.mp3" data-start="5.933" data-duration="0.5" data-track-index="11" data-volume="0.55"></audio>
+      <audio id="sfx13" class="clip" src="assets/sfx/pop.mp3" data-start="7.233" data-duration="0.5" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx14" class="clip" src="assets/sfx/page-turn.mp3" data-start="6.824" data-duration="0.95" data-track-index="12" data-volume="0.8"></audio>
+      <audio id="sfx15" class="clip" src="assets/sfx/click.mp3" data-start="7.680" data-duration="0.37" data-track-index="13" data-volume="0.5"></audio>
+      <audio id="sfx16" class="clip" src="assets/sfx/click.mp3" data-start="7.930" data-duration="0.37" data-track-index="11" data-volume="0.55"></audio>
+      <audio id="sfx17" class="clip" src="assets/sfx/type.mp3" data-start="8.307" data-duration="0.3" data-track-index="11" data-volume="0.32"></audio>
+      <audio id="sfx18" class="clip" src="assets/sfx/type.mp3" data-start="8.407" data-duration="0.3" data-track-index="12" data-volume="0.32"></audio>
+      <audio id="sfx19" class="clip" src="assets/sfx/type.mp3" data-start="8.507" data-duration="0.3" data-track-index="13" data-volume="0.32"></audio>
+      <audio id="sfx20" class="clip" src="assets/sfx/type.mp3" data-start="8.607" data-duration="0.3" data-track-index="11" data-volume="0.32"></audio>
+      <audio id="sfx21" class="clip" src="assets/sfx/type.mp3" data-start="8.707" data-duration="0.3" data-track-index="12" data-volume="0.32"></audio>
+      <audio id="sfx22" class="clip" src="assets/sfx/type.mp3" data-start="8.807" data-duration="0.3" data-track-index="13" data-volume="0.32"></audio>
+      <audio id="sfx23" class="clip" src="assets/sfx/marker.mp3" data-start="9.103" data-duration="0.5" data-media-start="0.4" data-track-index="11" data-volume="0.55"></audio>
+      <audio id="sfx24" class="clip" src="assets/sfx/paper-slide.mp3" data-start="9.477" data-duration="1.0" data-track-index="12" data-volume="0.5"></audio>
+      <audio id="sfx25" class="clip" src="assets/sfx/shutter.mp3" data-start="11.023" data-duration="0.3" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx26" class="clip" src="assets/sfx/shutter.mp3" data-start="11.243" data-duration="0.3" data-track-index="12" data-volume="0.45"></audio>
+      <audio id="sfx27" class="clip" src="assets/sfx/shutter.mp3" data-start="11.463" data-duration="0.3" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx28" class="clip" src="assets/sfx/shutter.mp3" data-start="11.683" data-duration="0.3" data-track-index="12" data-volume="0.45"></audio>
+      <audio id="sfx29" class="clip" src="assets/sfx/pop.mp3" data-start="12.413" data-duration="0.5" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx30" class="clip" src="assets/sfx/sticker.mp3" data-start="13.395" data-duration="0.57" data-track-index="11" data-volume="0.6"></audio>
+      <audio id="sfx31" class="clip" src="assets/sfx/type.mp3" data-start="16.107" data-duration="0.3" data-track-index="11" data-volume="0.4"></audio>
+      <audio id="sfx32" class="clip" src="assets/sfx/type.mp3" data-start="16.237" data-duration="0.3" data-track-index="12" data-volume="0.35"></audio>
+      <audio id="sfx33" class="clip" src="assets/sfx/type.mp3" data-start="16.367" data-duration="0.3" data-track-index="13" data-volume="0.4"></audio>
+      <audio id="sfx34" class="clip" src="assets/sfx/click.mp3" data-start="16.680" data-duration="0.37" data-track-index="11" data-volume="0.55"></audio>
+      <audio id="sfx35" class="clip" src="assets/sfx/marker.mp3" data-start="17.153" data-duration="0.5" data-media-start="0.4" data-track-index="11" data-volume="0.6"></audio>
+      <audio id="sfx36" class="clip" src="assets/sfx/click.mp3" data-start="17.630" data-duration="0.37" data-track-index="12" data-volume="0.55"></audio>
+      <audio id="sfx37" class="clip" src="assets/sfx/marker.mp3" data-start="18.103" data-duration="0.5" data-media-start="0.4" data-track-index="11" data-volume="0.6"></audio>
+      <audio id="sfx38" class="clip" src="assets/sfx/pop.mp3" data-start="18.483" data-duration="0.5" data-track-index="12" data-volume="0.55"></audio>
+      <audio id="sfx39" class="clip" src="assets/sfx/type.mp3" data-start="19.757" data-duration="0.3" data-track-index="11" data-volume="0.35"></audio>
+      <audio id="sfx40" class="clip" src="assets/sfx/page-turn.mp3" data-start="19.224" data-duration="0.95" data-track-index="12" data-volume="0.8"></audio>
+      <audio id="sfx41" class="clip" src="assets/sfx/type.mp3" data-start="19.907" data-duration="0.3" data-track-index="13" data-volume="0.4"></audio>
+      <audio id="sfx42" class="clip" src="assets/sfx/sticker.mp3" data-start="20.075" data-duration="0.57" data-track-index="11" data-volume="0.7"></audio>
+      <audio id="sfx43" class="clip" src="assets/sfx/click.mp3" data-start="20.580" data-duration="0.37" data-track-index="12" data-volume="0.45"></audio>
+      <audio id="sfx44" class="clip" src="assets/sfx/click.mp3" data-start="20.830" data-duration="0.37" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx45" class="clip" src="assets/sfx/pop.mp3" data-start="21.183" data-duration="0.5" data-track-index="12" data-volume="0.5"></audio>
+      <audio id="sfx46" class="clip" src="assets/sfx/click.mp3" data-start="21.680" data-duration="0.37" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx47" class="clip" src="assets/sfx/marker.mp3" data-start="22.253" data-duration="0.5" data-media-start="0.4" data-track-index="11" data-volume="0.45"></audio>
+      <audio id="sfx48" class="clip" src="assets/sfx/click.mp3" data-start="23.480" data-duration="0.37" data-track-index="11" data-volume="0.5"></audio>
+      <audio id="sfx49" class="clip" src="assets/sfx/sticker.mp3" data-start="23.775" data-duration="0.57" data-track-index="12" data-volume="0.85"></audio>
+      <audio id="sfx50" class="clip" src="assets/sfx/pop.mp3" data-start="24.133" data-duration="0.5" data-track-index="11" data-volume="0.55"></audio>
+      <audio id="sfx51" class="clip" src="assets/sfx/click.mp3" data-start="24.380" data-duration="0.37" data-track-index="12" data-volume="0.5"></audio>
+      <audio id="sfx52" class="clip" src="assets/sfx/marker.mp3" data-start="24.803" data-duration="0.5" data-media-start="0.4" data-track-index="11" data-volume="0.6"></audio>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      // the print grain shifts every second frame, so the paper feels alive without anything floating
+      tl.fromTo(
+        "#grain",
+        { backgroundPosition: "0px 0px" },
+        { backgroundPosition: "512px 1024px", duration: 28, ease: "steps(210)" },
+        0,
+      );
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

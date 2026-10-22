@@ -1,0 +1,123 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Caveat";
+      src: url("assets/fonts/caveat-600.woff2") format("woff2");
+      font-weight: 600;
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #x-bg {
+      position: absolute;
+      inset: 0;
+    }
+    #x-stack {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #x-kick {
+      font-size: 76px;
+      color: var(--ink);
+    }
+    #x-tagwrap {
+      position: relative;
+      margin-top: 40px;
+    }
+    #x-tag {
+      font-size: 300px;
+      line-height: 0.95;
+      padding: 10px 60px 30px;
+    }
+    #x-q1,
+    #x-q2 {
+      position: absolute;
+      top: 10px;
+      font-size: 200px;
+      line-height: 1;
+      color: var(--ink);
+    }
+    #x-q1 { left: -96px; }
+    #x-q2 { right: -96px; }
+    #x-badge {
+      position: absolute;
+      right: -20px;
+      top: -46px;
+    }
+    #x-below {
+      margin-top: 40px;
+      font-size: 190px;
+      line-height: 1;
+      color: var(--ink);
+    }
+    #x-arrow {
+      position: absolute;
+      left: 790px;
+      top: 1000px;
+      width: 200px;
+      height: 280px;
+      overflow: visible;
+    }
+    #x-note {
+      position: absolute;
+      left: 150px;
+      top: 1210px;
+      font-family: "Caveat", cursive;
+      font-weight: 600;
+      font-size: 62px;
+      color: var(--ink);
+      transform: rotate(-4deg);
+      white-space: nowrap;
+    }
+  </style>
+  <div id="root" data-composition-id="cta" data-width="1080" data-height="1920">
+    <div id="x-bg" class="g-paper"></div>
+    <div id="x-stack">
+      <div id="x-kick" class="k-caps">comment</div>
+      <div id="x-tagwrap">
+        <div id="x-q1" class="k-serif">“</div>
+        <div id="x-tag" class="sticker k-serif">VOX</div>
+        <div id="x-q2" class="k-serif">”</div>
+        <div id="x-badge" class="play-badge"></div>
+      </div>
+      <div id="x-below" class="k-serif-i">below</div>
+    </div>
+    <svg id="x-arrow" viewBox="0 0 200 280">
+      <path id="x-arrow-path" d="M40 20 C 150 60, 170 160, 110 262 M110 262 L 80 222 M110 262 L 150 236"
+        fill="none" stroke="#D3242B" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <div id="x-note">(I’ll send it)</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    tl.fromTo("#x-stack", { y: 160 }, { y: 0, duration: 0.2, ease: "power3.out" }, 0.95);
+
+    tl.fromTo("#x-kick", { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.14, ease: "back.out(2)" }, 0.1);
+
+    // the hero sticker slaps on hard, quotes and badge follow
+    tl.fromTo("#x-tag", { opacity: 0, scale: 1.8, rotation: -18 },
+      { opacity: 1, scale: 1, rotation: -5, duration: 0.3, ease: "back.out(1.8)" }, 0.4);
+    tl.fromTo("#x-tagwrap", { x: 0 }, { x: 6, duration: 0.067, ease: "steps(1)", yoyo: true, repeat: 1 }, 0.7);
+    tl.fromTo(["#x-q1", "#x-q2"], { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.72);
+    tl.fromTo("#x-badge", { opacity: 0, scale: 0.3, rotation: -20 },
+      { opacity: 1, scale: 1, rotation: 10, duration: 0.2, ease: "back.out(2.6)" }, 0.8);
+
+    // "below" letter-pop, then the hand arrow points down to the comments
+    tl.fromTo("#x-below", { opacity: 0, scale: 1.25 }, { opacity: 1, scale: 1, duration: 0.14, ease: "back.out(2)" }, 1.0);
+    const p = document.querySelector("#x-arrow-path");
+    const len = p.getTotalLength();
+    tl.fromTo(p, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 },
+      { strokeDashoffset: 0, opacity: 1, duration: 0.45, ease: "power2.out" }, 1.4);
+    tl.fromTo("#x-note", { clipPath: "inset(0 100% 0 0)" },
+      { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power1.inOut" }, 1.8);
+
+    window.__timelines["cta"] = tl;
+  </script>
+</template>

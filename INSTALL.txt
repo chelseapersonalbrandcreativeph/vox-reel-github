@@ -1,0 +1,70 @@
+VOX-STYLE REELS - HOW TO INSTALL
+================================
+
+Make Vox-style vertical reels (paper backgrounds, yellow stickers, word-by-word
+text, red caption pills, page peels) just by asking Claude.
+
+
+WHAT YOU NEED
+-------------
+- Claude Code (terminal, desktop app "Code" tab, or VS Code / JetBrains extension)
+  https://claude.com/claude-code
+- Node.js 18 or newer
+  https://nodejs.org
+
+Note: this needs Claude Code, not the regular claude.ai chat, because the video
+is rendered on your own computer.
+
+
+OPTION 1 - LET CLAUDE INSTALL IT (EASIEST)
+------------------------------------------
+Open Claude Code and paste:
+
+  Install the vox-reel skill from https://github.com/chelseapersonalbrandcreativeph/vox-style-skills into ~/.claude/skills
+
+
+OPTION 2 - ONE COMMAND IN TERMINAL
+----------------------------------
+  rm -rf /tmp/vox-style-skills && git clone https://github.com/chelseapersonalbrandcreativeph/vox-style-skills.git /tmp/vox-style-skills && mkdir -p ~/.claude/skills && cp -R /tmp/vox-style-skills/vox-reel ~/.claude/skills/
+
+
+OPTION 3 - DOWNLOAD AND DRAG
+----------------------------
+1. On the GitHub page, click the green "Code" button -> "Download ZIP".
+   Unzip it.
+2. Open your skills folder:
+     Mac:     in Finder press Shift+Command+G and type  ~/.claude/skills
+              (create the "skills" folder if it doesn't exist)
+     Windows: %USERPROFILE%\.claude\skills
+3. Drag the "vox-reel" folder into it.
+
+Then restart Claude Code.
+
+
+RECOMMENDED - HYPERFRAMES PLUGIN
+--------------------------------
+The skill renders with "npx hyperframes", which works on its own.
+For best results, also run these in Claude Code:
+
+  /plugin marketplace add heygen-com/hyperframes
+  /plugin install hyperframes@hyperframes
+
+
+HOW TO USE IT
+-------------
+Just ask Claude, for example:
+
+  Make a 25-second Vox-style reel explaining why airplane windows are round.
+
+  Turn this script into a Vox-style reel, words only, no voiceover: "..."
+
+  Make a Vox-style reel about [topic] with background music and sound effects.
+
+Or type:  /vox-reel
+
+
+TROUBLESHOOTING
+---------------
+- Skill doesn't show up: check the folder is at ~/.claude/skills/vox-reel/SKILL.md
+  (not ~/.claude/skills/vox-style-skills/vox-reel/...), then restart Claude Code.
+- Rendering fails or "npx not found": install Node.js 18+ and restart Claude Code.

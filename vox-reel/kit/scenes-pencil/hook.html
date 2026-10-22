@@ -1,0 +1,112 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #h-bg {
+      position: absolute;
+      inset: 0;
+    }
+    #h-stack {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 470px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #h-kick {
+      font-size: 84px;
+      color: var(--ink);
+      display: flex;
+      gap: 0.5em;
+    }
+    #h-tagwrap {
+      position: relative;
+      margin-top: 34px;
+    }
+    #h-tag {
+      font-size: 190px;
+      line-height: 1;
+    }
+    #h-badge {
+      position: absolute;
+      width: 300px;
+      right: -120px;
+      top: -36px;
+    }
+    #h-yellow {
+      font-size: 210px;
+      line-height: 1.05;
+      color: var(--ink);
+      margin-top: 18px;
+      display: flex;
+    }
+    #h-yellow span {
+      display: inline-block;
+    }
+    #h-under {
+      width: 760px;
+      height: 70px;
+      margin-top: -14px;
+      overflow: visible;
+    }
+    #h-pill-wrap {
+      margin-top: 56px;
+    }
+  </style>
+  <div id="root" data-composition-id="hook" data-width="1080" data-height="1920">
+    <div id="h-bg" class="g-paper"></div>
+    <div id="h-stack">
+      <div id="h-kick" class="k-caps"><span id="h-w1">Why</span><span id="h-w2">are</span></div>
+      <div id="h-tagwrap">
+        <div id="h-tag" class="sticker k-serif">pencils</div>
+        <div id="h-badge" class="pencil"></div>
+      </div>
+      <div id="h-yellow" class="k-serif-i">
+        <span>y</span><span>e</span><span>l</span><span>l</span><span>o</span><span>w</span><span>?</span>
+      </div>
+      <svg id="h-under" viewBox="0 0 760 70">
+        <path id="h-under-path" d="M18 40 C 160 22, 420 18, 742 30 M60 56 C 260 44, 470 46, 640 52"
+          fill="none" stroke="#FFE81F" stroke-width="16" stroke-linecap="round" />
+      </svg>
+      <div id="h-pill-wrap"><span id="h-pill" class="pill">(not an accident)</span></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const on = (sel, t) => tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.01 }, t);
+
+    // the stack re-centres as each line lands
+    tl.fromTo("#h-stack", { y: 380 }, { y: 250, duration: 0.2, ease: "power3.out" }, 0.3);
+    tl.fromTo("#h-stack", { y: 250 }, { y: 70, duration: 0.2, ease: "power3.out", immediateRender: false }, 0.95);
+    tl.fromTo("#h-stack", { y: 70 }, { y: 0, duration: 0.2, ease: "power3.out", immediateRender: false }, 2.3);
+
+
+    // sticker slaps on
+    tl.fromTo("#h-tag", { opacity: 0, scale: 1.6, rotation: -14 },
+      { opacity: 1, scale: 1, rotation: -4, duration: 0.28, ease: "back.out(1.8)" }, 0.3);
+    tl.fromTo("#h-tagwrap", { x: 0 }, { x: 4, duration: 0.067, ease: "steps(1)", yoyo: true, repeat: 1 }, 0.58);
+    // the real pencil pokes across the sticker
+    tl.fromTo("#h-badge", { opacity: 0, x: 140, rotation: -24 },
+      { opacity: 1, x: 0, rotation: -18, duration: 0.3, ease: VOX.twos("back.out(1.6)", 0.3) }, 0.48);
+
+    // "yellow?" letter by letter
+    gsap.utils.toArray("#h-yellow span").forEach((el, i) => {
+      tl.fromTo(el, { opacity: 0, scale: 1.25 }, { opacity: 1, scale: 1, duration: 0.12, ease: "back.out(2)" }, 0.95 + i * 0.045);
+    });
+
+    // felt-marker underline
+    const p = document.querySelector("#h-under-path");
+    const len = p.getTotalLength();
+    tl.fromTo(p, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 },
+      { strokeDashoffset: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 1.55);
+
+    // say-it-out-loud pill
+    tl.fromTo("#h-pill", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.14, ease: "back.out(2.2)" }, 2.35);
+
+    window.__timelines["hook"] = tl;
+  </script>
+</template>

@@ -1,0 +1,130 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Caveat";
+      src: url("assets/fonts/caveat-600.woff2") format("woff2");
+      font-weight: 600;
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #v-bg {
+      position: absolute;
+      inset: 0;
+    }
+    #v-stack {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #v-kick {
+      font-size: 62px;
+      color: var(--ink);
+      display: flex;
+      gap: 0.45em;
+    }
+    #v-prompt {
+      margin-top: 40px;
+      font-size: 170px;
+      line-height: 1;
+    }
+    #v-amp {
+      margin-top: 10px;
+      font-size: 120px;
+      line-height: 1;
+      color: var(--ink);
+    }
+    #v-skill-wrap {
+      position: relative;
+      width: 1080px;
+      height: 200px;
+      margin-top: 6px;
+    }
+    .v-skill {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      text-align: center;
+      font-size: 190px;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+    #v-skill-solid {
+      color: var(--ink);
+    }
+    #v-box {
+      position: absolute;
+      left: 230px;
+      width: 620px;
+      top: -6px;
+      height: 206px;
+      border: 10px solid var(--vox-yellow);
+    }
+    #v-used {
+      margin-top: 30px;
+      font-size: 130px;
+      line-height: 1;
+      color: var(--ink);
+    }
+    #v-note {
+      position: absolute;
+      left: 540px;
+      top: 1235px;
+      font-family: "Caveat", cursive;
+      font-weight: 600;
+      font-size: 60px;
+      color: var(--ink);
+      transform: rotate(-5deg);
+      white-space: nowrap;
+    }
+  </style>
+  <div id="root" data-composition-id="want" data-width="1080" data-height="1920">
+    <div id="v-bg" class="g-grid"></div>
+    <div id="v-stack">
+      <div id="v-kick" class="k-caps"><span>want</span><span id="v-k2">the</span><span id="v-k3">exact</span></div>
+      <div id="v-prompt" class="sticker k-serif">prompt</div>
+      <div id="v-amp" class="k-serif-i">&amp;</div>
+      <div id="v-skill-wrap">
+        <div id="v-skill-half" class="v-skill k-serif halftone">SKILL</div>
+        <div id="v-skill-solid" class="v-skill k-serif">SKILL</div>
+        <div id="v-box"></div>
+      </div>
+      <div id="v-used" class="k-serif-i">I used?</div>
+    </div>
+    <div id="v-note">(you get both)</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const on = (sel, t) => tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 0.01 }, t);
+
+    // the stack re-centres as it grows
+    tl.fromTo("#v-stack", { y: 240 }, { y: 120, duration: 0.2, ease: "power3.out" }, 0.75);
+    tl.fromTo("#v-stack", { y: 120 }, { y: 0, duration: 0.2, ease: "power3.out", immediateRender: false }, 1.45);
+
+    // revealed under the lifting page
+    on("#v-k2", 0.4);
+    on("#v-k3", 0.55);
+
+    tl.fromTo("#v-prompt", { opacity: 0, scale: 1.6, rotation: -14 },
+      { opacity: 1, scale: 1, rotation: -3, duration: 0.28, ease: "back.out(1.8)" }, 0.75);
+    on("#v-amp", 1.2);
+
+    // SKILL arrives halftone, the yellow box selects it, it inks solid
+    tl.fromTo("#v-skill-half", { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.16, ease: "back.out(2)" }, 1.45);
+    tl.fromTo("#v-box", { opacity: 0, scale: 1.15 }, { opacity: 1, scale: 1, duration: 0.14, ease: "back.out(2)" }, 1.85);
+    on("#v-skill-solid", 1.95);
+    tl.fromTo("#v-skill-half", { opacity: 1 }, { opacity: 0, duration: 0.01, immediateRender: false }, 1.95);
+
+    tl.fromTo("#v-used", { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.14, ease: "back.out(2)" }, 2.3);
+    tl.fromTo("#v-note", { clipPath: "inset(0 100% 0 0)" },
+      { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power1.inOut" }, 2.85);
+
+    window.__timelines["want"] = tl;
+  </script>
+</template>

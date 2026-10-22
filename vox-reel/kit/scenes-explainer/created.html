@@ -1,0 +1,100 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Special Elite";
+      src: url("assets/fonts/special-elite.woff2") format("woff2");
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #c-bg {
+      position: absolute;
+      inset: 0;
+    }
+    #c-stack {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 470px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #c-just {
+      font-size: 150px;
+      line-height: 1;
+      color: var(--vox-yellow);
+      text-shadow: 5px 5px 0 var(--ink);
+    }
+    .c-hero {
+      font-size: 156px;
+      line-height: 1;
+      color: var(--ink);
+      margin-top: 6px;
+    }
+    #c-type {
+      margin-top: 50px;
+      font-family: "Special Elite", monospace;
+      font-size: 64px;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      position: relative;
+      white-space: pre;
+    }
+    #c-type span {
+      opacity: 0;
+    }
+    #c-circle {
+      position: absolute;
+      left: 168px;
+      top: -46px;
+      width: 320px;
+      height: 160px;
+      overflow: visible;
+    }
+    #c-tag {
+      position: absolute;
+      left: 560px;
+      top: 1150px;
+      font-size: 72px;
+      line-height: 1;
+    }
+  </style>
+  <div id="root" data-composition-id="created" data-width="1080" data-height="1920">
+    <div id="c-bg" class="g-grid"></div>
+    <div id="c-stack">
+      <div id="c-just" class="k-serif-i">I just</div>
+      <div id="c-w1" class="c-hero k-hero">created</div>
+      <div id="c-w2" class="c-hero k-hero">this</div>
+      <div id="c-type"><span>—</span><span> </span><span>i</span><span>n</span><span> </span><span>C</span><span>l</span><span>a</span><span>u</span><span>d</span><span>e</span><span>.</span><svg id="c-circle" viewBox="0 0 330 160"><path id="c-circle-path" d="M190 20 C 80 8, 16 44, 20 86 C 26 134, 150 150, 246 132 C 316 118, 322 60, 270 34 C 226 14, 150 14, 106 28" fill="none" stroke="#D3242B" stroke-width="7" stroke-linecap="round" /></svg></div>
+    </div>
+    <div id="c-tag" class="sticker k-serif-i">no editor.</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // revealed under the lifting page
+    tl.fromTo("#c-just", { opacity: 0, scale: 1.3, rotation: -4 },
+      { opacity: 1, scale: 1, rotation: -4, duration: 0.18, ease: "back.out(2)" }, 0.3);
+    tl.fromTo("#c-w1", { opacity: 0, scale: 1.16 }, { opacity: 1, scale: 1, duration: 0.16, ease: "back.out(2)" }, 0.7);
+    tl.fromTo("#c-w2", { opacity: 0, scale: 1.16 }, { opacity: 1, scale: 1, duration: 0.16, ease: "back.out(2)" }, 0.95);
+
+    // typewriter, 20 characters a second
+    gsap.utils.toArray("#c-type span").forEach((el, i) => {
+      tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.01 }, 1.35 + i / 20);
+    });
+
+    // hand circle around "Claude"
+    const p = document.querySelector("#c-circle-path");
+    const len = p.getTotalLength();
+    tl.fromTo(p, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 },
+      { strokeDashoffset: 0, opacity: 1, duration: 0.45, ease: "power2.out" }, 2.1);
+
+    // sticker docks low-right, on twos
+    tl.fromTo("#c-tag", { y: 420, rotation: 8 },
+      { y: 0, rotation: -6, duration: 0.42, ease: VOX.twos("back.out(1.4)", 0.42) }, 2.55);
+
+    window.__timelines["created"] = tl;
+  </script>
+</template>

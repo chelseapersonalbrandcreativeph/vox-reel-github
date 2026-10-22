@@ -1,0 +1,109 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #c-bg {
+      position: absolute;
+      inset: 0;
+    }
+    #c-vig {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 55% at 50% 42%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 60%, rgba(60, 55, 45, 0.22) 100%);
+    }
+    .c-card {
+      position: absolute;
+      width: 410px;
+      height: 450px;
+    }
+    .c-frame {
+      position: absolute;
+      inset: 0;
+      border-radius: 30px;
+      overflow: hidden;
+      background: #ddd9d0;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+    }
+    .c-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .c-label {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 470px;
+      text-align: center;
+      font-size: 32px;
+      color: #4a4a4a;
+      letter-spacing: 0.08em;
+    }
+    #c1 { left: 105px; top: 250px; }
+    #c2 { left: 565px; top: 250px; }
+    #c3 { left: 105px; top: 790px; }
+    #c4 { left: 565px; top: 790px; }
+    .c-pill {
+      position: absolute;
+      transform-origin: 50% 50%;
+    }
+  </style>
+  <div id="root" data-composition-id="cards" data-width="1080" data-height="1920">
+    <div id="c-bg" class="g-paper"></div>
+    <div id="c-vig"></div>
+
+    <div id="c1" class="c-card"><div class="c-frame"><img id="c1-img" src="assets/img/graphite.jpg" alt="graphite" /></div><div class="c-label k-caps">graphite</div></div>
+    <div id="c2" class="c-card"><div class="c-frame"><img id="c2-img" src="assets/img/roof.jpg" alt="imperial roof" /></div><div class="c-label k-caps">imperial yellow</div></div>
+    <div id="c3" class="c-card"><div class="c-frame" style="background:#f3efe4"><img id="c3-img" src="assets/img/kohinoor-ad.png" alt="Koh-i-Noor ad" style="object-fit:contain" /></div><div class="c-label k-caps">koh-i-noor</div></div>
+    <div id="c4" class="c-card"><div class="c-frame"><img id="c4-img" src="assets/img/paris1889.jpg" alt="Paris 1889" /></div><div class="c-label k-caps">paris, 1889</div></div>
+
+    <div id="cp1" class="c-pill pill">the best graphite</div>
+    <div id="cp2" class="c-pill pill">came from china</div>
+    <div id="cp3" class="c-pill pill">where yellow</div>
+    <div id="cp4" class="c-pill pill">meant royalty</div>
+    <div id="cp5" class="c-pill pill">so hardtmuth</div>
+    <div id="cp6" class="c-pill pill">painted his yellow</div>
+    <div id="cp7" class="c-pill pill">and showed it off</div>
+    <div id="cp8" class="c-pill pill">in paris, 1889</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const cards = ["#c1", "#c2", "#c3", "#c4"];
+
+    // cards drop onto the table, one after another
+    cards.forEach((c, i) => {
+      tl.fromTo(c, { opacity: 0, scale: 0.9, y: 30 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.26, ease: "back.out(1.5)" }, i * 0.06);
+      // photographs feel like footage: a slow constant push the whole time
+      tl.fromTo(c + "-img", { scale: 1 }, { scale: 1.1, duration: 7.6, ease: "none" }, 0);
+    });
+
+    // pill captions: two chunks per card, popped onto the card's lower edge
+    const centers = [[310, 600], [770, 600], [310, 1140], [770, 1140]];
+    const times = [0.35, 1.25, 2.15, 3.05, 3.95, 4.85, 5.75, 6.65, 7.6];
+    for (let i = 0; i < 8; i++) {
+      const el = document.querySelector("#cp" + (i + 1));
+      const [cx, cy] = centers[Math.floor(i / 2)];
+      gsap.set(el, { left: cx, top: cy, xPercent: -50, yPercent: -50 });
+      const t0 = times[i],
+        t1 = times[i + 1];
+      // the first chunk on a card arrives with a hop, the second simply swaps
+      const hop = i % 2 === 0 && i > 0;
+      tl.fromTo(el, { opacity: 0, scale: 0.82, x: hop ? -60 : 0, filter: hop ? "blur(6px)" : "blur(0px)" },
+        { opacity: 1, scale: 1, x: 0, filter: "blur(0px)", duration: hop ? 0.18 : 0.12, ease: hop ? "power3.out" : "back.out(2.2)" }, t0);
+      if (i < 7) tl.fromTo(el, { opacity: 1 }, { opacity: 0, duration: 0.01, immediateRender: false }, t1);
+    }
+
+    // the card being talked about lifts a little
+    cards.forEach((c, i) => {
+      const t0 = times[i * 2];
+      tl.fromTo(c, { scale: 1 }, { scale: 1.04, duration: 0.18, ease: "power3.out", immediateRender: false }, t0);
+      if (i < 3) tl.fromTo(c, { scale: 1.04 }, { scale: 1, duration: 0.14, ease: "power2.out", immediateRender: false }, times[i * 2 + 2]);
+    });
+
+    window.__timelines["cards"] = tl;
+  </script>
+</template>

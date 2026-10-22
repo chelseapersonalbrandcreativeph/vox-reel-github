@@ -1,0 +1,109 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #w-page {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    #w-lines {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 470px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .w-small {
+      font-size: 100px;
+      line-height: 1.08;
+      color: var(--cyan);
+    }
+    #w-edit-wrap {
+      position: relative;
+      margin-top: 40px;
+      height: 230px;
+      width: 1080px;
+    }
+    .w-big {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      text-align: center;
+      font-size: 196px;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+    #w-solid {
+      color: var(--chalk);
+    }
+    #w-under {
+      position: absolute;
+      left: 120px;
+      top: 190px;
+      width: 840px;
+      height: 60px;
+      overflow: visible;
+    }
+    #w-pill-wrap {
+      margin-top: 50px;
+    }
+    #w-flapwrap {
+      position: absolute;
+      inset: 0;
+      filter: drop-shadow(-14px 18px 18px rgba(0, 0, 0, 0.45));
+      pointer-events: none;
+    }
+    #w-flap {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(118deg, #b9b5ac 0%, #e9e6df 38%, #d6d2c9 100%);
+    }
+  </style>
+  <div id="root" data-composition-id="wonder" data-width="1080" data-height="1920">
+    <div id="w-page" class="g-night">
+      <div id="w-lines">
+        <div id="w-l1" class="w-small k-serif-i">and wondered</div>
+        <div id="w-l2" class="w-small k-serif-i">how they’re</div>
+        <div id="w-edit-wrap">
+          <div id="w-half" class="w-big k-serif halftone">EDITED?</div>
+          <div id="w-solid" class="w-big k-serif">EDITED?</div>
+          <svg id="w-under" viewBox="0 0 840 60">
+            <path id="w-under-path" d="M14 34 C 200 14, 520 12, 826 26" fill="none" stroke="#D3242B" stroke-width="16" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div id="w-pill-wrap"><span id="w-pill" class="pill">(be honest)</span></div>
+      </div>
+    </div>
+    <div id="w-flapwrap"><div id="w-flap"></div></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // hard cut in on the value flip, cyan line already there
+    tl.fromTo("#w-l2", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.3);
+
+    // the giant halftone word punches in, then inks solid
+    tl.fromTo("#w-half", { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.16, ease: "back.out(2)" }, 0.65);
+    tl.fromTo("#w-solid", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 1.35);
+    tl.fromTo("#w-half", { opacity: 1 }, { opacity: 0, duration: 0.01, immediateRender: false }, 1.35);
+
+    const p = document.querySelector("#w-under-path");
+    const len = p.getTotalLength();
+    tl.fromTo(p, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 },
+      { strokeDashoffset: 0, opacity: 1, duration: 0.4, ease: "power2.out" }, 1.4);
+
+    tl.fromTo("#w-pill", { opacity: 0, scale: 0.8, rotation: 0 },
+      { opacity: 1, scale: 1, rotation: -3, duration: 0.14, ease: "back.out(2.2)" }, 2.0);
+
+    // the night page peels away
+    VOX.peel(tl, "#w-page", "#w-flap", 3.0, 0.58);
+
+    window.__timelines["wonder"] = tl;
+  </script>
+</template>

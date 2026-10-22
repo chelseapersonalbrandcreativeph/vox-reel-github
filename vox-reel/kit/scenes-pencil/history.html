@@ -1,0 +1,129 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Special Elite";
+      src: url("assets/fonts/special-elite.woff2") format("woff2");
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #y-page {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    #y-title {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 250px;
+      text-align: center;
+      font-size: 78px;
+      line-height: 1;
+      color: var(--chalk);
+    }
+    #y-title em {
+      font-style: normal;
+      color: var(--vox-yellow);
+    }
+    .y-row {
+      position: absolute;
+      left: 110px;
+      width: 860px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      gap: 36px;
+    }
+    .y-chip {
+      flex: none;
+      width: 170px;
+      height: 110px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .y-chip img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .y-dot {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--pill-red);
+    }
+    .y-text {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .y-year {
+      font-family: "Special Elite", monospace;
+      font-size: 38px;
+      color: #a9a9a9;
+      letter-spacing: 0.06em;
+    }
+    .y-line {
+      font-family: "Oswald", sans-serif;
+      font-weight: 600;
+      font-size: 50px;
+      line-height: 1;
+      color: var(--chalk);
+      text-transform: uppercase;
+    }
+    #y-shot {
+      position: absolute;
+      left: 520px;
+      top: 1150px;
+      font-size: 46px;
+    }
+    #y-flapwrap {
+      position: absolute;
+      inset: 0;
+      filter: drop-shadow(-14px 18px 18px rgba(0, 0, 0, 0.45));
+      pointer-events: none;
+    }
+    #y-flap {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(118deg, #b9b5ac 0%, #e9e6df 38%, #d6d2c9 100%);
+    }
+  </style>
+  <div id="root" data-composition-id="history" data-width="1080" data-height="1920">
+    <div id="y-page" class="g-night">
+      <div id="y-title" class="k-hero">how <em>yellow</em> won</div>
+      <div id="y-r1" class="y-row" style="top: 420px"><div class="y-chip"><img src="assets/img/paris1889.jpg" alt="" /></div><div class="y-text"><div class="y-year">1889</div><div class="y-line">Koh-i-Noor debuts in Paris</div></div></div>
+      <div id="y-r2" class="y-row" style="top: 570px"><div class="y-chip"><img src="assets/img/chicago1893.jpg" alt="" /></div><div class="y-text"><div class="y-year">1893</div><div class="y-line">America sees it in Chicago</div></div></div>
+      <div id="y-r3" class="y-row" style="top: 720px"><div class="y-chip" style="background:#f3efe4"><img src="assets/img/kohinoor-ad.png" alt="" style="object-fit:contain" /></div><div class="y-text"><div class="y-year">1900</div><div class="y-line">It wins the Grand Prix</div></div></div>
+      <div id="y-r4" class="y-row" style="top: 870px"><div class="y-chip"><div class="y-dot"></div></div><div class="y-text"><div class="y-year">1900s</div><div class="y-line">Rivals paint theirs yellow</div></div></div>
+      <div id="y-r5" class="y-row" style="top: 1020px"><div class="y-chip"><div class="y-dot"></div></div><div class="y-text"><div class="y-year">today</div><div class="y-line">Yellow = “a real pencil”</div></div></div>
+      <div id="y-shot" class="pill">*screenshot this*</div>
+    </div>
+    <div id="y-flapwrap"><div id="y-flap"></div></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    tl.fromTo("#y-title", { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 0.16, ease: "back.out(2)" }, 0.05);
+
+    // rows land hard, with a two-frame sideways jolt
+    for (let i = 1; i <= 5; i++) {
+      const t = 0.35 + (i - 1) * 0.45;
+      tl.fromTo("#y-r" + i, { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.1, ease: VOX.twos("power3.out", 0.1) }, t);
+    }
+
+    tl.fromTo("#y-shot", { opacity: 0, scale: 0.7, rotation: -14 },
+      { opacity: 1, scale: 1, rotation: -5, duration: 0.2, ease: "back.out(2.4)" }, 2.75);
+
+    // this page peels away into the next
+    VOX.peel(tl, "#y-page", "#y-flap", 4.3, 0.58);
+
+    window.__timelines["history"] = tl;
+  </script>
+</template>

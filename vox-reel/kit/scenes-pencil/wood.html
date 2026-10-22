@@ -1,0 +1,123 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #w-page {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    #w-lines {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 560px;
+      text-align: center;
+    }
+    .w-small {
+      position: absolute;
+      left: 0;
+      right: 0;
+      font-size: 104px;
+      color: var(--cyan);
+      line-height: 1;
+    }
+    .w-big {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 120px;
+      font-size: 236px;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+    #w-paint {
+      color: var(--vox-yellow);
+      -webkit-text-stroke: 0;
+    }
+    #w-strike {
+      position: absolute;
+      left: 90px;
+      top: 180px;
+      width: 900px;
+      height: 200px;
+      overflow: visible;
+    }
+    #w-lit {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 440px;
+      text-align: center;
+    }
+    #w-pencil {
+      position: absolute;
+      width: 980px;
+      left: 330px;
+      top: 1420px;
+    }
+    #w-flapwrap {
+      position: absolute;
+      inset: 0;
+      filter: drop-shadow(-14px 18px 18px rgba(0, 0, 0, 0.45));
+      pointer-events: none;
+    }
+    #w-flap {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(118deg, #b9b5ac 0%, #e9e6df 38%, #d6d2c9 100%);
+    }
+  </style>
+  <div id="root" data-composition-id="wood" data-width="1080" data-height="1920">
+    <div id="w-page" class="g-night">
+      <div id="w-lines">
+        <div id="w-not" class="w-small k-serif-i">it’s not the</div>
+        <div id="w-its" class="w-small k-serif-i">it’s the</div>
+        <div id="w-wood" class="w-big k-serif halftone">WOOD</div>
+        <svg id="w-strike" viewBox="0 0 900 200">
+          <path id="w-strike-path" d="M40 150 C 250 60, 520 40, 860 70 M80 60 C 330 100, 600 130, 830 160"
+            fill="none" stroke="#D3242B" stroke-width="22" stroke-linecap="round" />
+        </svg>
+        <div id="w-paint" class="w-big k-serif">PAINT.</div>
+        <div id="w-lit"><span id="w-lit-pill" class="pill">(literally.)</span></div>
+      </div>
+      <div id="w-pencil" class="pencil"></div>
+    </div>
+    <div id="w-flapwrap"><div id="w-flap"></div></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // cut in on the value flip: the cyan line is already there
+    tl.fromTo("#w-not", { opacity: 1 }, { opacity: 0, duration: 0.01 }, 1.5);
+    tl.fromTo("#w-its", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 1.5);
+
+    // giant halftone word punches in
+    tl.fromTo("#w-wood", { opacity: 0, scale: 1.18 }, { opacity: 1, scale: 1, duration: 0.16, ease: "back.out(2)" }, 0.22);
+
+    // the real pencil slides up from the corner, animated on twos
+    tl.fromTo("#w-pencil", { x: 420, y: 260, rotation: -28 },
+      { x: 0, y: 0, rotation: -28, duration: 0.55, ease: VOX.twos("power3.out", 0.55) }, 0.1);
+
+    // red marker crosses WOOD out
+    const p = document.querySelector("#w-strike-path");
+    const len = p.getTotalLength();
+    tl.fromTo(p, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 },
+      { strokeDashoffset: 0, opacity: 1, duration: 0.42, ease: "power2.out" }, 0.75);
+
+    // WOOD swaps for PAINT
+    tl.fromTo(["#w-wood", "#w-strike"], { opacity: 1 }, { opacity: 0, duration: 0.01, immediateRender: false }, 1.5);
+    tl.fromTo("#w-paint", { opacity: 0, scale: 1.5, rotation: -6 },
+      { opacity: 1, scale: 1, rotation: -3, duration: 0.24, ease: "back.out(1.8)" }, 1.5);
+
+    tl.fromTo("#w-lit-pill", { opacity: 0, scale: 0.8, rotation: 0 },
+      { opacity: 1, scale: 1, rotation: -3, duration: 0.14, ease: "back.out(2.2)" }, 1.95);
+
+    // the night page peels away from the top-right corner
+    VOX.peel(tl, "#w-page", "#w-flap", 2.3, 0.58);
+
+    window.__timelines["wood"] = tl;
+  </script>
+</template>
